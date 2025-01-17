@@ -1,7 +1,7 @@
 {
   "name": "tourjs",
-  "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
+  "description": "一个轻量级的页面引导库，帮助用户快速了解网页功能。",
   "type": "module",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
@@ -14,30 +14,57 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c -w"
+    "dev": "rollup -c -w",
+    "prepublishOnly": "rd /s /q dist 2>nul || rm -rf dist && npm run build",
+    "release": "powershell -File ./bin/publish.ps1"
   },
+  "keywords": [
+    "tour",
+    "guide",
+    "tutorial",
+    "onboarding",
+    "tooltip",
+    "highlight",
+    "intro",
+    "introduction",
+    "step-by-step",
+    "feature-tour"
+  ],
+  "author": {
+    "name": "adiynil",
+    "email": "adiynil@gmail.com",
+    "url": "https://github.com/adiynil"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adiynil/tourjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adiynil/tourjs/issues"
+  },
+  "homepage": "https://github.com/adiynil/tourjs#readme",
   "devDependencies": {
-    "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
     "@types/jump.js": "^1.0.6",
     "less": "^4.2.1",
     "rollup": "^4.30.1",
-    "rollup-plugin-less": "^1.1.3",
     "rollup-plugin-postcss": "^4.0.2",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.3",
-    "vite": "^5.4.8"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.6.11",
-    "jump.js": "^1.0.2",
-    "lodash-es": "^4.17.21"
+    "jump.js": "^1.0.2"
   },
   "browserslist": [
     "> 1%",

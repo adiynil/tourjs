@@ -7,21 +7,27 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# 依赖
 node_modules
+
+# 构建输出
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# 编辑器和IDE
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
 
-# Custom
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 自定义
 test
