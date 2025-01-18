@@ -1,6 +1,6 @@
 {
   "name": "@adiynil/tourjs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "一个轻量级的页面引导库，帮助用户快速了解网页功能。",
   "type": "module",
   "main": "dist/index.umd.js",
@@ -22,8 +22,9 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "prepublishOnly": "rd /s /q dist 2>nul || rm -rf dist && npm run build",
-    "release": "powershell -File ./bin/publish.ps1"
+    "clean": "node -e \"const fs=require('fs');if(fs.existsSync('dist'))fs.rmSync('dist',{recursive:true,force:true});\"",
+    "prepublishOnly": "npm run clean && npm run build",
+    "release": "bash ./bin/publish.sh"
   },
   "keywords": [
     "tour",
@@ -71,5 +72,8 @@
     "last 2 versions",
     "not dead",
     "ie >= 11"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
