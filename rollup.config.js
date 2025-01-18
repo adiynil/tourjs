@@ -1,6 +1,5 @@
 import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
-import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 import postcss from 'rollup-plugin-postcss';
 
@@ -22,21 +21,6 @@ export default {
   plugins: [
     typescript(),
     resolve(),
-    babel({
-      babelHelpers: 'bundled',
-      presets: [
-        ['@babel/preset-env', {
-          targets: {
-            browsers: [
-              'last 2 versions',
-              'ie >= 11'
-            ]
-          },
-          modules: false
-        }]
-      ],
-      exclude: 'node_modules/**'
-    }),
     postcss({
       extract: 'dist/style.css',
       extensions: ['.css', '.less'],
