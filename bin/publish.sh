@@ -12,10 +12,19 @@ PACKAGE_NAME="@adiynil/tourjs"
 # 错误处理函数
 handle_error() {
   echo -e "${RED}$1${NC}"
-  if [[ $2 != 5 ]]; then
-    npm version $3 --no-git-tag-version --allow-same-version
-  fi
   exit 1
+}
+
+# 警告函数
+show_warning() {
+  echo -e "${YELLOW}警告: $1${NC}"
+}
+
+# 版本回滚函数
+rollback_version() {
+  if [[ $1 != 5 ]]; then
+    npm version $2 --no-git-tag-version --allow-same-version
+  fi
 }
 
 # 检查 npm 登录状态
@@ -29,6 +38,12 @@ fi
 current_version=$(node -p "require('./package.json').version")
 echo -e "${GREEN}当前版本: v$current_version${NC}"
 
+# 选择发布类型
+echo -e "\n${YELLOW}选择发布类型:${NC}"
+echo "1) 正式版本"
+echo "2) Beta 版本"
+read -p "请选择 (1-2): " release_type
+
 # 选择版本更新类型
 echo -e "\n${YELLOW}选择版本更新类型:${NC}"
 echo "1) patch (补丁版本: 0.0.1 -> 0.0.2)"
@@ -40,16 +55,28 @@ read -p "请选择 (1-5): " choice
 
 case $choice in
   1)
-    new_version=$(npm version patch --no-git-tag-version)
+    if [[ $release_type == 2 ]]; then
+      new_version=$(npm version prepatch --preid=beta --no-git-tag-version)
+    else
+      new_version=$(npm version patch --no-git-tag-version)
+    fi
     ;;
   2)
-    new_version=$(npm version minor --no-git-tag-version)
+    if [[ $release_type == 2 ]]; then
+      new_version=$(npm version preminor --preid=beta --no-git-tag-version)
+    else
+      new_version=$(npm version minor --no-git-tag-version)
+    fi
     ;;
   3)
-    new_version=$(npm version major --no-git-tag-version)
+    if [[ $release_type == 2 ]]; then
+      new_version=$(npm version premajor --preid=beta --no-git-tag-version)
+    else
+      new_version=$(npm version major --no-git-tag-version)
+    fi
     ;;
   4)
-    read -p "请输入新版本号 (例如 1.0.0): " input_version
+    read -p "请输入新版本号 (例如 1.0.0 或 1.0.0-beta.0): " input_version
     new_version="v$input_version"
     npm version $input_version --no-git-tag-version
     ;;
@@ -57,39 +84,70 @@ case $choice in
     new_version="v$current_version"
     ;;
   *)
-    echo -e "${RED}无效的选择${NC}"
-    exit 1
+    handle_error "无效的选择"
     ;;
 esac
 
 # 清理和构建
 echo -e "\n${YELLOW}清理旧文件并重新构建...${NC}"
-npm run clean || handle_error "清理失败" $choice $current_version
-npm run build || handle_error "构建失败" $choice $current_version
+if ! npm run clean; then
+  rollback_version $choice $current_version
+  handle_error "清理失败"
+fi
+
+if ! npm run build; then
+  rollback_version $choice $current_version
+  handle_error "构建失败"
+fi
 
 # 确认发布
 echo -e "\n${GREEN}即将发布 $PACKAGE_NAME $new_version${NC}"
+if [[ $release_type == 2 ]]; then
+  echo -e "${YELLOW}这是一个 Beta 版本，将使用 beta tag 发布${NC}"
+fi
 read -p "确认发布? (y/N) " confirm
 if [[ $confirm != [yY] ]]; then
   echo -e "${YELLOW}发布已取消${NC}"
-  if [[ $choice != 5 ]]; then
-    npm version $current_version --no-git-tag-version --allow-same-version
-  fi
+  rollback_version $choice $current_version
   exit 0
 fi
 
 # 发布到 npm
 echo -e "\n${YELLOW}发布到 npm...${NC}"
-npm publish || handle_error "发布失败" $choice $current_version
+if [[ $release_type == 2 ]]; then
+  if ! npm publish --tag beta; then
+    rollback_version $choice $current_version
+    handle_error "发布失败"
+  fi
+else
+  if ! npm publish; then
+    rollback_version $choice $current_version
+    handle_error "发布失败"
+  fi
+fi
 
 # Git 操作
 echo -e "\n${YELLOW}创建 Git 提交和标签...${NC}"
-git add package.json
-git commit -m "chore: release $new_version" || handle_error "Git 提交失败" $choice $current_version
-git tag -a "$new_version" -m "Release $new_version" || handle_error "创建标签失败" $choice $current_version
+if ! git add .; then
+  show_warning "Git 暂存失败，但发布已完成"
+  exit 0
+fi
+
+if ! git commit -m "chore: release $new_version"; then
+  show_warning "Git 提交失败，但发布已完成"
+  exit 0
+fi
+
+if ! git tag -a "$new_version" -m "Release $new_version"; then
+  show_warning "创建标签失败，但发布已完成"
+  exit 0
+fi
 
 # 推送到远程
 echo -e "\n${YELLOW}推送到远程仓库...${NC}"
-git push && git push origin "$new_version" || handle_error "推送到远程失败" $choice $current_version
+if ! git push && git push origin "$new_version"; then
+  show_warning "推送到远程失败，但发布已完成。请手动执行：git push && git push origin $new_version"
+  exit 0
+fi
 
 echo -e "\n${GREEN}✨ 发布完成!${NC}" 

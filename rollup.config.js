@@ -1,34 +1,32 @@
 import typescript from '@rollup/plugin-typescript';
 import resolve from '@rollup/plugin-node-resolve';
-import terser from '@rollup/plugin-terser';
 import postcss from 'rollup-plugin-postcss';
+import strip from 'rollup-plugin-strip';
 
 export default {
   input: 'src/main.ts',
-  output: [
-    {
-      file: 'dist/index.umd.js',
-      format: 'umd',
-      name: 'tourjs',
-      sourcemap: true
-    },
-    {
-      file: 'dist/index.esm.js',
-      format: 'es',
-      sourcemap: true
-    }
-  ],
+  output: {
+    file: 'dist/index.js',
+    format: 'es'
+  },
   plugins: [
-    typescript(),
+    typescript({
+      removeComments: true,
+      sourceMap: false
+    }),
     resolve(),
     postcss({
-      extract: 'dist/style.css',
+      extract: 'style.css',
       extensions: ['.css', '.less'],
       use: ['less'],
-      minimize: true,
-      sourceMap: true
+      minimize: false
     }),
-    terser()
+    strip({
+      include: ['**/*.js', '**/*.ts'],
+      functions: ['console.*', 'assert.*'],
+      debugger: true,
+      sourceMap: false
+    })
   ],
-  external: []
+  external: ['@floating-ui/dom', 'jump.js']
 };
