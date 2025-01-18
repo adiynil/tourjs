@@ -410,8 +410,8 @@ export class Tour implements TourInstance {
    * @public
    */
   public run(): void {
-    this.currentStep = 0;
-    this.initStep();
+    this.currentStep = -1;
+    this.next();
   }
 }
 

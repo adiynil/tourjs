@@ -28,5 +28,5 @@ export default {
       sourceMap: false
     })
   ],
-  external: ['@floating-ui/dom', 'jump.js']
+  external: []
 };
