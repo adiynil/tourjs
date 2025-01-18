@@ -19,12 +19,12 @@ export default {
       extract: 'style.css',
       extensions: ['.css', '.less'],
       use: ['less'],
-      minimize: false
+      minimize: true
     }),
     strip({
       include: ['**/*.js', '**/*.ts'],
       functions: ['console.*', 'assert.*'],
-      debugger: true,
+      debugger: process.env.NODE_ENV === 'development',
       sourceMap: false
     })
   ],

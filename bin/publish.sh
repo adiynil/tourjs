@@ -143,11 +143,16 @@ if ! git tag -a "$new_version" -m "Release $new_version"; then
   exit 0
 fi
 
-# 推送到远程
-echo -e "\n${YELLOW}推送到远程仓库...${NC}"
-if ! git push && git push origin "$new_version"; then
-  show_warning "推送到远程失败，但发布已完成。请手动执行：git push && git push origin $new_version"
-  exit 0
+read -p "是否现在推送到远程仓库? (y/N) " push_confirm
+if [[ $push_confirm == [yY] ]]; then
+  # 推送到远程
+  echo -e "\n${YELLOW}开始推送到远程仓库...${NC}"
+  if ! git push && git push origin "$new_version"; then
+    show_warning "推送到远程失败，但发布已完成。请手动执行：git push && git push origin $new_version"
+    exit 0
+  fi
+else
+  echo -e "可手动执行命令推送到远程仓库：git push && git push origin $new_version"
 fi
 
 echo -e "\n${GREEN}✨ 发布完成!${NC}" 
