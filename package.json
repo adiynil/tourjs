@@ -1,6 +1,6 @@
 {
   "name": "@adiynil/tourjs",
-  "version": "0.0.3-beta.2",
+  "version": "0.0.3",
   "description": "一个轻量级的页面引导库，帮助用户快速了解网页功能。",
   "type": "module",
   "main": "dist/index.js",
